@@ -21,9 +21,9 @@ export const revalidate = 3600;
 export default async function ClientSitePage({
   params,
 }: {
-  params: { subdomain: string };
+  params: Promise<{ subdomain: string }>;
 }) {
-  const { subdomain } = params;
+  const { subdomain } = await params;
   
   // Fetch client data from database
   const client = await prisma.client.findUnique({
