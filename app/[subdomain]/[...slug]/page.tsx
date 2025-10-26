@@ -1,15 +1,16 @@
 import { getTenant } from '@/lib/tenant/getTenant';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     subdomain: string;
     slug: string[];
-  };
+  }>;
 }
 
 export default async function TenantSlugPage({ params }: PageProps) {
-  const tenant = await getTenant(params.subdomain);
-  const slug = params.slug.join('/');
+  const { subdomain, slug: slugArray } = await params;
+  const tenant = await getTenant(subdomain);
+  const slug = slugArray.join('/');
   
   if (!tenant) {
     return (
