@@ -1,24 +1,9 @@
-import { prisma } from '@/lib/db/prisma';
-import { notFound } from 'next/navigation';
-
-interface LayoutProps {
+export default async function TenantLayout({
+  children,
+  params,
+}: {
   children: React.ReactNode;
-  params: Promise<{
-    subdomain: string;
-  }>;
+  params: Promise<{ subdomain: string }>;
+}) {
+  return <>{children}</>;
 }
-
-export default async function TenantLayout({ children, params }: LayoutProps) {
-  const { subdomain } = await params;
-  
-  const client = await prisma.client.findUnique({
-    where: { subdomain },
-  });
-  
-  if (!client || client.status !== 'ACTIVE') {
-    notFound();
-  }
-  
-  return <div className="min-h-screen bg-gray-50">{children}</div>;
-}
-

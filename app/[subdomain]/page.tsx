@@ -1,23 +1,3 @@
-import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/db/prisma';
-import ClientHeader from '@/components/tenant/ClientHeader';
-import ClientFooter from '@/components/tenant/ClientFooter';
-
-// Generate static params for all clients (ISR)
-export async function generateStaticParams() {
-  const clients = await prisma.client.findMany({
-    where: { status: 'ACTIVE' },
-    select: { subdomain: true },
-  });
-  
-  return clients.map((client: { subdomain: string }) => ({
-    subdomain: client.subdomain,
-  }));
-}
-
-// Revalidate every hour (Incremental Static Regeneration)
-export const revalidate = 3600;
-
 export default async function ClientSitePage({
   params,
 }: {
@@ -25,55 +5,31 @@ export default async function ClientSitePage({
 }) {
   const { subdomain } = await params;
   
-  // Fetch client data from database
-  const client = await prisma.client.findUnique({
-    where: { 
-      subdomain,
-    },
-    include: {
-      pages: {
-        where: { published: true },
-      },
-    },
-  });
-  
-  // If client not found or not active, show 404
-  if (!client || client.status !== 'ACTIVE') {
-    notFound();
-  }
-  
-  // Fetch homepage content
-  const homepage = (client.pages as any[]).find((page: any) => page.slug === 'home');
-  
   return (
-    <div className="min-h-screen flex flex-col">
-      <ClientHeader 
-        logo={client.logoUrl}
-        name={client.name}
-        primaryColor={client.primaryColor}
-      />
-      
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 py-12">
-          <h1 className="text-4xl font-bold mb-6">
-            {homepage?.title || `Welcome to ${client.name}`}
-          </h1>
-          
-          <div 
-            className="prose lg:prose-xl"
-            dangerouslySetInnerHTML={{ __html: homepage?.content || '' }}
-          />
-          
-          {/* Contact information */}
-          <div className="mt-12 p-6 bg-gray-100 rounded-lg">
-            <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
-            <p>Email: {client.email}</p>
-            {client.phone && <p>Phone: {client.phone}</p>}
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
+      <div className="text-center text-white p-8">
+        <h1 className="text-6xl font-bold mb-4">
+          ✅ It Works!
+        </h1>
+        <p className="text-2xl mb-2">
+          Subdomain: <strong>{subdomain}</strong>
+        </p>
+        <p className="text-lg opacity-80">
+          You're viewing: {subdomain}.{process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'stronaodnowa.pl'}
+        </p>
+        <div className="mt-8 p-4 bg-white/10 rounded-lg backdrop-blur">
+          <p className="text-sm">
+            Middleware detected subdomain correctly ✓<br/>
+            Dynamic routing working ✓<br/>
+            Deployment successful ✓
+          </p>
         </div>
-      </main>
-      
-      <ClientFooter client={client} />
+      </div>
     </div>
   );
+}
+
+// Generate static params (empty for now - will be populated later)
+export async function generateStaticParams() {
+  return [];
 }
