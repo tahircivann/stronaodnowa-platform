@@ -480,11 +480,78 @@ npm run dev
    - Main site: http://localhost:3000
    - Client sites (use query params): http://localhost:3000?tenant=demo
 
+## 🚀 How to Create Websites
+
+### Quick Start (5 Steps)
+
+**1. Add Database** (5 minutes)
+- Go to Vercel → Storage → Create Postgres database
+- Free tier works great for testing
+
+**2. Connect Environment Variables**
+```bash
+vercel env pull .env.local
+```
+
+**3. Push Database Schema**
+```bash
+npm run db:generate
+npm run db:push
+```
+
+**4. Create Your First Client**
+- Visit: `https://stronaodnowa.pl/dashboard/clients`
+- Fill in the form:
+  - Name: "Acme Corporation"
+  - Subdomain: "acme"
+  - Email: "contact@acme.com"
+  - Color: #FF5733 (optional)
+
+**5. Click "Create Client Site"**
+- Wait 5-10 seconds
+- Website is live at: `https://acme.stronaodnowa.pl` ✓
+
+### What Happens Behind the Scenes
+
+```typescript
+// 1. You submit form
+Name: "Acme Corporation"
+Subdomain: "acme"
+
+// 2. API validates (0.1s)
+✓ Subdomain format correct
+✓ Not taken
+✓ Email valid
+
+// 3. Creates in database (0.3s)
+Database now has:
+- Client record
+- Default homepage
+
+// 4. Adds to Vercel (5-10s)
+Subdomain registered: acme.stronaodnowa.pl
+
+// Total: ~10 seconds
+// Result: Live website at acme.stronaodnowa.pl ✓
+```
+
+### Client Gets Instantly:
+- ✅ Their own subdomain (`acme.stronaodnowa.pl`)
+- ✅ Custom branding (colors, logo, content)
+- ✅ SSL certificate (automatic, secure)
+- ✅ Fast loading (globally distributed)
+- ✅ Professional appearance
+- ✅ Mobile-responsive
+
+For detailed instructions, see: **[HOW_TO_CREATE_WEBSITES.md](./HOW_TO_CREATE_WEBSITES.md)**
+
 ## 📚 Documentation
 
 - **[QUICK_TEST.md](./QUICK_TEST.md)** - Quick start testing guide
 - **[TESTING.md](./TESTING.md)** - Detailed testing procedures
 - **[CONFIG.md](./CONFIG.md)** - Configuration setup guide
+- **[HOW_TO_CREATE_WEBSITES.md](./HOW_TO_CREATE_WEBSITES.md)** - Complete guide for creating client websites
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Technical architecture and how it works
 
 ## 📁 Project Structure
 
