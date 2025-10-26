@@ -17,7 +17,7 @@ export default function DashboardPage() {
           
           <div className="rounded-lg border p-6">
             <h3 className="mb-2 text-lg font-semibold">Revenue</h3>
-            <p className="text-3xl font-bold">$1,240</p>
+            <p className="text-3xl font-bold">$0</p>
           </div>
         </div>
         

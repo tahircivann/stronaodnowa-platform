@@ -100,7 +100,7 @@ export default function ClientsPage() {
               })}
               placeholder="acme"
             />
-            <span className="px-4 py-2 bg-gray-100 border border-l-0 rounded-r-lg">
+            <span className="px-4 py-2 bg-black-100 border border-l-0 rounded-r-lg">
               .stronaodnowa.pl
             </span>
           </div>
