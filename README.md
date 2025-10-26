@@ -87,21 +87,21 @@ All running from the **same application**, deployed **once**, yet each client ge
 
 **Scenario:** A visitor goes to `https://acme.stronaodnowa.pl`
 
-#### Step 1: DNS Resolution (0.1 seconds)
+#### Step 1: DNS Resolution 
 ```
 Browser: "Where is acme.stronaodnowa.pl?"
 DNS Server: "Points to Vercel's Edge Network"
 Browser: "Connecting to Vercel..."
 ```
 
-#### Step 2: SSL/TLS Handshake (0.2 seconds)
+#### Step 2: SSL/TLS Handshake 
 ```
 Browser: "Is this secure?"
 Vercel: "Yes! Here's my wildcard certificate for *.stronaodnowa.pl"
 Browser: "✅ Secure connection established"
 ```
 
-#### Step 3: Middleware Interception (<0.01 seconds)
+#### Step 3: Middleware Interception 
 ```typescript
 // middleware.ts runs on EVERY request
 
@@ -112,7 +112,7 @@ Browser: "✅ Secure connection established"
 5. Pass to Next.js router
 ```
 
-#### Step 4: Dynamic Route Processing (0.5 seconds)
+#### Step 4: Dynamic Route Processing
 ```typescript
 // app/[subdomain]/page.tsx
 
@@ -128,7 +128,7 @@ Browser: "✅ Secure connection established"
 5. Render HTML with client's branding and content
 ```
 
-#### Step 5: Response Sent (0.1 seconds)
+#### Step 5: Response Sent 
 ```
 Server → Browser: Here's the fully rendered HTML
 Browser: Displays Acme Corporation's website
@@ -151,14 +151,14 @@ Color: "#FF5733"
 
 **API Processing Flow:**
 
-**1. Validation (0.1 seconds)**
+**1. Validation **
 ```
 ✓ Check subdomain format: lowercase, no spaces
 ✓ Check if subdomain already exists
 ✓ Validate email format
 ```
 
-**2. Database Creation (0.3 seconds)**
+**2. Database Creation **
 ```sql
 -- Create client record
 INSERT INTO clients (name, subdomain, email, primaryColor, status)
@@ -169,7 +169,7 @@ INSERT INTO pages (clientId, slug, title, content, published)
 VALUES ('acme-id', 'home', 'Welcome to Acme', '<h1>Hello!</h1>', true);
 ```
 
-**3. Vercel API Call (2-4 seconds)**
+**3. Vercel API Call **
 ```typescript
 // Tell Vercel to add this subdomain
 POST https://api.vercel.com/v10/projects/{PROJECT_ID}/domains
@@ -183,14 +183,14 @@ Response:
 }
 ```
 
-**4. SSL Certificate Provisioning (1-5 seconds)**
+**4. SSL Certificate Provisioning**
 ```
 Vercel: "New subdomain detected: acme.stronaodnowa.pl"
 Let's Encrypt: "Wildcard *.stronaodnowa.pl already covers this"
 Vercel: "✅ SSL active immediately"
 ```
 
-**5. Status Update (0.1 seconds)**
+**5. Status Update **
 ```sql
 UPDATE clients SET status = 'ACTIVE' WHERE subdomain = 'acme';
 ```
@@ -215,7 +215,7 @@ One-time setup:
 - Get wildcard SSL certificate
 
 Every new client:
-- Just add subdomain via API (5 seconds)
+- Just add subdomain via API 
 - SSL works immediately
 - No DNS waiting
 ```
