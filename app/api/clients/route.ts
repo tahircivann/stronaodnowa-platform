@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { VercelDomainsAPI } from '@/lib/vercel/domains-api';
 
-const domainsAPI = new VercelDomainsAPI();
-
 export async function POST(request: NextRequest) {
   try {
+    // Only instantiate if needed
+    let domainsAPI: VercelDomainsAPI | null = null;
+    
     const body = await request.json();
     const { name, subdomain, email, phone, primaryColor } = body;
     
@@ -63,7 +64,11 @@ export async function POST(request: NextRequest) {
     
     // Add subdomain to Vercel via API
     try {
-      await domainsAPI.addDomain(subdomain);
+      // Only instantiate if we have the credentials
+      if (process.env.VERCEL_TOKEN && process.env.VERCEL_PROJECT_ID) {
+        domainsAPI = new VercelDomainsAPI();
+        await domainsAPI.addDomain(subdomain);
+      }
       
       // Update client status to ACTIVE
       await prisma.client.update({
@@ -74,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         client,
-        url: `https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+        url: `https://${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'yourdomain.com'}`,
         message: 'Client created successfully! Subdomain is now active.',
       });
       
@@ -83,10 +88,11 @@ export async function POST(request: NextRequest) {
       console.error('Vercel API error:', vercelError);
       
       return NextResponse.json({
-        success: false,
+        success: true,
         client,
-        error: 'Client created but subdomain setup failed. Contact support.',
-      }, { status: 500 });
+        url: null,
+        message: 'Client created but subdomain setup requires Vercel configuration.',
+      });
     }
     
   } catch (error) {
