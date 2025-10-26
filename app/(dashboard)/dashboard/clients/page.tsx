@@ -48,6 +48,24 @@ export default function ClientsPage() {
   
   return (
     <div className="max-w-2xl mx-auto p-6">
+      <div className="mb-6 rounded-lg border-2 border-yellow-500 bg-yellow-50 p-4">
+        <h2 className="font-semibold text-yellow-900 mb-2">⚠️ Database Not Connected</h2>
+        <p className="text-sm text-yellow-800 mb-3">
+          To create websites, you need to connect a database first.
+        </p>
+        <div className="space-y-2 text-sm text-yellow-800">
+          <p><strong>Quick Setup (5 min):</strong></p>
+          <ol className="list-decimal list-inside space-y-1 ml-4">
+            <li>Vercel Dashboard → Storage → Create Postgres</li>
+            <li>Pull env vars: <code className="bg-yellow-100 px-1 rounded">vercel env pull .env.local</code></li>
+            <li>Push schema: <code className="bg-yellow-100 px-1 rounded">npm run db:push</code></li>
+          </ol>
+          <p className="mt-2">
+            📖 See <a href="/HOW_TO_CREATE_WEBSITES.md" className="underline font-semibold">HOW_TO_CREATE_WEBSITES.md</a> for detailed instructions
+          </p>
+        </div>
+      </div>
+      
       <h1 className="text-3xl font-bold mb-8">Add New Client</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
