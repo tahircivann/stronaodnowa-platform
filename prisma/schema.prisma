@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,62 +11,50 @@ model Client {
   id          String   @id @default(cuid())
   name        String
   subdomain   String   @unique
-  domain      String?
+  customDomain String? @unique
+  
+  // Site configuration
+  logoUrl     String?
+  primaryColor String  @default("#000000")
   description String?
-  status      String   @default("active") // active, inactive, suspended
+  
+  // Contact info
+  email       String
+  phone       String?
+  
+  // Metadata
+  status      ClientStatus @default(ACTIVE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
   // Relations
-  settings    ClientSettings?
+  pages       Page[]
   
-  @@map("clients")
+  @@index([subdomain])
+  @@index([customDomain])
 }
 
-model ClientSettings {
+enum ClientStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+  DELETED
+}
+
+model Page {
   id        String   @id @default(cuid())
-  clientId  String   @unique
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+  slug      String
+  title     String
+  content   String   @db.Text
+  published Boolean  @default(false)
   
-  // Theme settings
-  primaryColor   String?
-  secondaryColor String?
-  logo           String?
-  
-  // Feature toggles
-  features       String[] // Array of enabled features
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  @@map("client_settings")
-}
-
-model Domain {
-  id          String   @id @default(cuid())
-  domain      String   @unique
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
-  // Vercel domain info
-  vercelId    String?
-  verified    Boolean  @default(false)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("domains")
-}
-
-model AdminUser {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String   // Should be hashed
-  name      String
-  role      String   @default("admin") // admin, super_admin
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  @@map("admin_users")
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@unique([clientId, slug])
+  @@index([clientId])
+  @@index([slug])
 }
-

@@ -1,62 +1,79 @@
-import { getTenant } from '@/lib/tenant/getTenant';
+import { notFound } from 'next/navigation';
+import { prisma } from '@/lib/db/prisma';
+import ClientHeader from '@/components/tenant/ClientHeader';
+import ClientFooter from '@/components/tenant/ClientFooter';
 
-interface PageProps {
-  params: {
-    subdomain: string;
-  };
+// Generate static params for all clients (ISR)
+export async function generateStaticParams() {
+  const clients = await prisma.client.findMany({
+    where: { status: 'ACTIVE' },
+    select: { subdomain: true },
+  });
+  
+  return clients.map((client: { subdomain: string }) => ({
+    subdomain: client.subdomain,
+  }));
 }
 
-export default async function TenantHomePage({ params }: PageProps) {
-  const tenant = await getTenant(params.subdomain);
+// Revalidate every hour (Incremental Static Regeneration)
+export const revalidate = 3600;
+
+export default async function ClientSitePage({
+  params,
+}: {
+  params: { subdomain: string };
+}) {
+  const { subdomain } = params;
   
-  if (!tenant) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <h1 className="text-2xl font-bold">Tenant not found</h1>
-      </div>
-    );
+  // Fetch client data from database
+  const client = await prisma.client.findUnique({
+    where: { 
+      subdomain,
+    },
+    include: {
+      pages: {
+        where: { published: true },
+      },
+    },
+  });
+  
+  // If client not found or not active, show 404
+  if (!client || client.status !== 'ACTIVE') {
+    notFound();
   }
   
+  // Fetch homepage content
+  const homepage = (client.pages as any[]).find((page: any) => page.slug === 'home');
+  
   return (
-    <div className="min-h-screen">
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">{tenant.name}</h1>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col">
+      <ClientHeader 
+        logo={client.logoUrl}
+        name={client.name}
+        primaryColor={client.primaryColor}
+      />
       
-      <main className="py-12">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-8">
-            <p className="text-lg text-gray-600">{tenant.description || 'Welcome to our website'}</p>
-          </div>
+      <main className="flex-grow">
+        <div className="container mx-auto px-4 py-12">
+          <h1 className="text-4xl font-bold mb-6">
+            {homepage?.title || `Welcome to ${client.name}`}
+          </h1>
           
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {/* Add tenant-specific content here */}
-            <div className="rounded-lg border p-6">
-              <h3 className="mb-2 text-xl font-semibold">Feature One</h3>
-              <p className="text-gray-600">Description of feature one</p>
-            </div>
-            
-            <div className="rounded-lg border p-6">
-              <h3 className="mb-2 text-xl font-semibold">Feature Two</h3>
-              <p className="text-gray-600">Description of feature two</p>
-            </div>
-            
-            <div className="rounded-lg border p-6">
-              <h3 className="mb-2 text-xl font-semibold">Feature Three</h3>
-              <p className="text-gray-600">Description of feature three</p>
-            </div>
+          <div 
+            className="prose lg:prose-xl"
+            dangerouslySetInnerHTML={{ __html: homepage?.content || '' }}
+          />
+          
+          {/* Contact information */}
+          <div className="mt-12 p-6 bg-gray-100 rounded-lg">
+            <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
+            <p>Email: {client.email}</p>
+            {client.phone && <p>Phone: {client.phone}</p>}
           </div>
         </div>
       </main>
       
-      <footer className="mt-20 border-t bg-gray-50 py-8">
-        <div className="mx-auto max-w-7xl px-4">
-          <p className="text-center text-gray-600">© {new Date().getFullYear()} {tenant.name}</p>
-        </div>
-      </footer>
+      <ClientFooter client={client} />
     </div>
   );
 }
-
